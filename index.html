@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>朋友眼中的我</title>
+    <style>
+        body { text-align: center; font-family: Arial, sans-serif; }
+        .colors { margin: 10px; display: flex; flex-direction: column; align-items: center; }
+        .color-item { display: flex; align-items: center; margin: 5px; }
+        .color { width: 30px; height: 30px; display: inline-block; margin-right: 10px; cursor: pointer; border-radius: 50%; }
+        canvas { border: 2px solid black; border-radius: 50%; cursor: crosshair; margin-top: 10px; touch-action: none; }
+    </style>
+</head>
+<body>
+    <h1>朋友眼中的我</h1>
+    <div class="colors">
+        <div class="color-item"><div class="color" style="background-color: pink;" onclick="selectColor('pink')"></div> 可爱</div>
+        <div class="color-item"><div class="color" style="background-color: green;" onclick="selectColor('green')"></div> 抽象</div>
+        <div class="color-item"><div class="color" style="background-color: purple;" onclick="selectColor('purple')"></div> 温柔</div>
+        <div class="color-item"><div class="color" style="background-color: orange;" onclick="selectColor('orange')"></div> 神经</div>
+        <div class="color-item"><div class="color" style="background-color: blue;" onclick="selectColor('blue')"></div> 开朗</div>
+        <div class="color-item"><div class="color" style="background-color: black;" onclick="selectColor('black')"></div> 高冷</div>
+        <div class="color-item"><div class="color" style="background-color: red;" onclick="selectColor('red')"></div> 暴躁</div>
+        <div class="color-item"><div class="color" style="background-color: yellow;" onclick="selectColor('yellow')"></div> 色色</div>
+    </div>
+    <canvas id="drawingCanvas" width="300" height="300"></canvas>
+    <br>
+    <button onclick="clearCanvas()">清空</button>
+
+    <script>
+        const canvas = document.getElementById("drawingCanvas");
+        const ctx = canvas.getContext("2d");
+        let painting = false;
+        let currentColor = "black";
+
+        function selectColor(color) {
+            currentColor = color;
+        }
+
+        function startPosition(e) {
+            painting = true;
+            draw(e);
+        }
+
+        function endPosition() {
+            painting = false;
+            ctx.beginPath();
+        }
+
+        function getPosition(e) {
+            const rect = canvas.getBoundingClientRect();
+            return {
+                x: (e.touches ? e.touches[0].clientX : e.clientX) - rect.left,
+                y: (e.touches ? e.touches[0].clientY : e.clientY) - rect.top
+            };
+        }
+
+        function draw(e) {
+            if (!painting) return;
+            e.preventDefault();
+            const { x, y } = getPosition(e);
+            ctx.lineWidth = 10;
+            ctx.lineCap = "round";
+            ctx.strokeStyle = currentColor;
+            ctx.lineTo(x, y);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+        }
+
+        function clearCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        // 监听鼠标事件
+        canvas.addEventListener("mousedown", startPosition);
+        canvas.addEventListener("mouseup", endPosition);
+        canvas.addEventListener("mousemove", draw);
+        
+        // 监听触摸事件（兼容手机）
+        canvas.addEventListener("touchstart", (e) => { e.preventDefault(); startPosition(e); }, { passive: false });
+        canvas.addEventListener("touchend", (e) => { e.preventDefault(); endPosition(); }, { passive: false });
+        canvas.addEventListener("touchmove", (e) => { e.preventDefault(); draw(e); }, { passive: false });
+    </script>
+</body>
+</html>
